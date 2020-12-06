@@ -1,5 +1,4 @@
 
-import datetime
 import os
 import pandas as pd
 from datetime import datetime
@@ -8,9 +7,11 @@ import talib
 import matplotlib.pyplot as plt
 from mplfinance.original_flavor import candlestick_ohlc
 from matplotlib.pylab import date2num
+from pathlib import Path
+# choose your output directory
+path = r'C:\SCRIPT\TA'
 
-# choose ypur output directory
-os.chdir(r'C:\SCRIPT\TA')
+
 
 print('Stock Ticker: ')
 # =============================================================================
@@ -20,13 +21,18 @@ print('Days of Analysis: ')
 # =============================================================================
 DoA = int(input())
 # =============================================================================
+
 try :
     StockNAME,MARKET = Stock.split('.', 1)
 except ValueError:
     StockNAME = Stock
 
+path_output = path + '/'+ StockNAME
+Path(path_output).mkdir(parents=True, exist_ok=True)
+os.chdir(path_output)
+
 current_time = datetime.now()
-minuti , ore, day = current_time.minute, current_time.hour, current_time.day
+minuti , ore, day, month, year = current_time.minute, current_time.hour, current_time.day, current_time.month, current_time.year
 
 # Get today's date as UTC timestamp
 today = datetime.today().strftime("%d/%m/%Y")
@@ -116,7 +122,7 @@ def plot_chart(data, n, ticker):
     ax_vol.set_ylabel("(Million)")
    
     # Save the chart as PNG
-    fig.savefig(StockNAME + '_' + str(day)+ '_' +str(ore)+ '_' + str(minuti) + ".png", bbox_inches="tight")
+    fig.savefig(StockNAME + '_' + str(year)+ '_' +str(month)+ '_' +str(day)+ '_' +str(ore)+ '_' + str(minuti) + ".png", bbox_inches="tight")
     
     plt.show()
     
