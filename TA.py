@@ -1,25 +1,25 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Sep 21 17:13:14 2020
-
-@author: gianluca.simionato
-"""
 
 import datetime
 import os
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import talib
 import matplotlib.pyplot as plt
 from mplfinance.original_flavor import candlestick_ohlc
 from matplotlib.pylab import date2num
 
-print('Stock: ')
-# =============================================================================
-Stock = input()
-# =============================================================================
+# choose ypur output directory
+os.chdir(r'C:\SCRIPT\TA')
 
+print('Stock Ticker: ')
+# =============================================================================
+Stock = input().upper()
+# =============================================================================
+print('Days of Analysis: ')
+# =============================================================================
+DoA = int(input())
+# =============================================================================
 try :
     StockNAME,MARKET = Stock.split('.', 1)
 except ValueError:
@@ -28,7 +28,6 @@ except ValueError:
 current_time = datetime.now()
 minuti , ore, day = current_time.minute, current_time.hour, current_time.day
 
-os.chdir(r'C:\SCRIPT\TA')
 # Get today's date as UTC timestamp
 today = datetime.today().strftime("%d/%m/%Y")
 today = datetime.strptime(today + " +0000", "%d/%m/%Y %z")
@@ -41,8 +40,7 @@ def get_price_hist(ticker):
 
     # Put stock price data in dataframe
     url = "https://query1.finance.yahoo.com/v7/finance/download/{ticker}?period1={fro}&period2={to}&interval=1d&events=history".format(ticker=ticker, fro=fro, to=to)
-    data = pd.read_csv(url)
-    
+    data = pd.read_csv(url)    
     # Convert date to timestamp and make index
     data.index = data["Date"].apply(lambda x: pd.Timestamp(x))
     data.drop("Date", axis=1, inplace=True)
@@ -50,27 +48,24 @@ def get_price_hist(ticker):
     return data
 
 
-nflx_df = get_price_hist(Stock)
-nflx_df.dropna(how='all', inplace=True)
+df_Stock = get_price_hist(Stock)
+df_Stock.dropna(how='all', inplace=True)
 
 
 def get_indicators(data):
     # Get MACD
     data["macd"], data["macd_signal"], data["macd_hist"] = talib.MACD(data['Close'])
-    
     # Get MA10 and MA30
     data["ma10"] = talib.MA(data["Close"], timeperiod=10)
     data["ma30"] = talib.MA(data["Close"], timeperiod=30)
-    
     # Get RSI
     data["rsi"] = talib.RSI(data["Close"])
     
     return data
 
-nflx_df2 = get_indicators(nflx_df)
+df_Stock = get_indicators(df_Stock)
 #nflx_df2.sort_index(ascending=False, inplace=True)
 #nflx_df2.dropna(how='all', inplace=True)
-
 
 
 def plot_chart(data, n, ticker):
@@ -126,4 +121,4 @@ def plot_chart(data, n, ticker):
     plt.show()
     
     
-plot_chart(nflx_df2, 180, Stock)
+plot_chart(df_Stock, DoA, Stock)
